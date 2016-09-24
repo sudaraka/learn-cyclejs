@@ -1,0 +1,34 @@
+{
+  "name": "learn-cyclejs",
+  "version": "0.0.0",
+  "description": "Practice code for Cycle.js Fundamentals on egghead.io",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rm -fr dist/",
+    "build": "webpack",
+    "pretest": "eslint src/",
+    "test": "exit 0;",
+    "start": "live-server --no-browser --port=5000 dist/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sudaraka/learn-cyclejs.git"
+  },
+  "author": "Sudaraka Wijesinghe <sudaraka@sudaraka.org> (https://sudaraka.org/)",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/sudaraka/learn-cyclejs/issues"
+  },
+  "homepage": "https://github.com/sudaraka/learn-cyclejs#readme",
+  "devDependencies": {
+    "@sudaraka/eslint-config-default": "^0.7.3",
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.14.0",
+    "eslint": "^3.6.0",
+    "html-webpack-plugin": "^2.22.0",
+    "live-server": "^1.1.0",
+    "webpack": "^1.13.2"
+  },
+  "dependencies": {}
+}
