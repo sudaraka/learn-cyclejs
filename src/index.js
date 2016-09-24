@@ -1,14 +1,25 @@
 import Rx from 'rxjs'
 
-// Logic (functional)
-Rx.Observable.timer(0, 1000)
-  .map(i => `Seconds elapsed ${i}`)
+const
+  // Logic (functional)
+  main = () => Rx.Observable.timer(0, 1000)
+    .map(i => `Seconds elapsed ${i}`),
 
 
 // Effects (imperative)
-  .subscribe(text => {
-    const
-      container = document.querySelector('#app')
+  domEffects = text$ => {
+    text$.subscribe(text => {
+      const
+        container = document.querySelector('#app')
 
-    container.textContent = text
-  })
+      container.textContent = text
+    })
+  },
+
+  consoleLogEffect = msg$ => msg$.subscribe(msg => console.log(msg)),
+
+  sink = main()
+
+domEffects(sink)
+
+consoleLogEffect(sink)
