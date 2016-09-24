@@ -9,7 +9,7 @@ const
 
 
 // Effects (imperative)
-  domEffects = text$ => {
+  domDriver = text$ => {
     text$.subscribe(text => {
       const
         container = document.querySelector('#app')
@@ -18,10 +18,20 @@ const
     })
   },
 
-  consoleLogEffect = msg$ => msg$.subscribe(msg => console.log(msg)),
+  consoleLogDriver = msg$ => msg$.subscribe(msg => console.log(msg)),
 
-  sink = main()
+  run = (mainFn, effects) => {
+    const
+      sink = mainFn()
 
-domEffects(sink.DOM)
+    Object.keys(effects).forEach(key => {
+      effects[key](sink[key])
+    })
+  },
 
-consoleLogEffect(sink.Log)
+  drivers = {
+    'DOM': domDriver,
+    'Log': consoleLogDriver
+  }
+
+run(main, drivers)
