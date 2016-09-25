@@ -1,68 +1,54 @@
 import Rx from 'rx'
 import { run } from '@cycle/core'
-import { h2, label, input, div, makeDOMDriver } from '@cycle/dom'
+import { label, input, div, makeDOMDriver } from '@cycle/dom'
 
 const
-  // DOM Read: Detect slider change
-  // Recalculate BMI
-  // DOM Write: Display DMI
+  intent = domSource => domSource.select('.slider').events('input')
+    .map(e => e.target.value),
 
-  intent = domSource => ({
-    'changeWeight$': domSource.select('.weight').events('input')
-      .map(e => e.target.value),
-    'changeHeight$': domSource.select('.height').events('input')
-      .map(e => e.target.value)
-  }),
+  model = (newValue$, props$) => {
+    const
+      inital$ = props$.map(props => props.init).first(),
+      value$ = inital$.concat(newValue$)
 
-  model = (changeWeight$, changeHeight$) => Rx.Observable.combineLatest(
-    changeWeight$.startWith(69),
-    changeHeight$.startWith(154),
-    (weight, height) => {
-      const
-        heightM = height / 100,
-        bmi = Math.round(weight / (heightM * heightM))
-
-      return {
-        bmi,
-        weight,
-        height
-      }
-    }
-  ),
+    return Rx.Observable.combineLatest(value$, props$, (value, props) => ({
+      ...props,
+      value
+    }))
+  },
 
   view = state$ => state$.map(state =>
-    div([
-      div([
-        label(`Weight: ${state.weight}Kg`),
-        input('.weight', {
-          'type': 'number',
-          'min': 40,
-          'max': 150,
-          'value': state.weight
-        })
-      ]),
-      div([
-        label(`Height: ${state.height}cm`),
-        input('.height', {
-          'type': 'number',
-          'min': 140,
-          'max': 220,
-          'value': state.height
-        })
-      ]),
-      h2(`BMI is ${state.bmi}`)
+    div('.labeled-slider', [
+      label('.label', `${state.label}: ${state.value}${state.unit}`),
+      input('.slider', {
+        'attrs': {
+          'type': 'range',
+          'min': state.min,
+          'max': state.max,
+          'value': state.value
+        }
+      })
     ])
   ),
 
   main = sources => {
     const
-      { changeWeight$, changeHeight$ } = intent(sources.DOM),
-      state$ = model(changeWeight$, changeHeight$),
+      change$ = intent(sources.DOM),
+      state$ = model(change$, sources.props),
       vtree$ = view(state$)
 
     return { 'DOM': vtree$ }
   },
 
-  drivers = { 'DOM': makeDOMDriver('#app') }
+  drivers = {
+    'DOM': makeDOMDriver('#app'),
+    'props': () => Rx.Observable.of({
+      'label': 'Height',
+      'unit': 'cm',
+      'min': 140,
+      'max': 220,
+      'init': 154
+    })
+  }
 
 run(main, drivers)
