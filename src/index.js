@@ -2,6 +2,11 @@ import Rx from 'rxjs'
 import { run } from '@cycle/core'
 
 const
+  h = (tagName, children) => ({
+    tagName,
+    children
+  }),
+
   // Logic (functional)
   main = source => {
     const
@@ -11,13 +16,7 @@ const
       'DOM': click$
         .startWith(null)
         .switchMap(() => Rx.Observable.timer(0, 1000)
-          .map(i => ({
-            'tagName': 'h1',
-            'children': [ {
-              'tagName': 'span',
-              'children': [ `Seconds elapsed ${i}` ]
-            } ]
-          }))
+          .map(i => h('h1', [ h('span', [ `Seconds elapsed ${i}` ]) ]))
         ),
       'Log': Rx.Observable.timer(0, 2000).map(i => i * 2)
     }
