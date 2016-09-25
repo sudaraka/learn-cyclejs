@@ -5,7 +5,7 @@ const
   // Logic (functional)
   main = source => {
     const
-      click$ = source.DOM
+      click$ = source.DOM.selectEvent('span', 'mouseover')
 
     return {
       'DOM': click$
@@ -27,8 +27,6 @@ const
 // Effects (imperative)
   domDriver = obj$ => {
     const
-      domSource = Rx.Observable.fromEvent(document, 'click'),
-
       createElement = obj => {
         const
           element = document.createElement(obj.tagName)
@@ -54,7 +52,10 @@ const
       container.appendChild(element)
     })
 
-    return domSource
+    return {
+      'selectEvent': (tagName, eventType) => Rx.Observable.fromEvent(document, eventType)
+        .filter(e => e.target.tagName === tagName.toUpperCase())
+    }
   },
 
   consoleLogDriver = msg$ => msg$.subscribe(msg => console.log(msg)),
