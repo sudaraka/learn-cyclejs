@@ -1,65 +1,25 @@
 import Rx from 'rxjs'
 import { run } from '@cycle/core'
-
-const
-  h = (tagName, children) => ({
-    tagName,
-    children
-  }),
-
-  h1 = children => h('h1', children),
-  span = children => h('span', children),
+import { h1, span, makeDOMDriver } from '@cycle/dom'
 
   // Logic (functional)
-  main = source => {
+  function main(source) {
     const
-      click$ = source.DOM.selectEvent('span', 'mouseover')
+      mouseover$ = source.DOM.select('span').events('mouseover')
 
     return {
-      'DOM': click$
+      'DOM': mouseover$
         .startWith(null)
         .switchMap(() => Rx.Observable.timer(0, 1000)
           .map(i => h1([ span([ `Seconds elapsed ${i}` ]) ]))
         ),
       'Log': Rx.Observable.timer(0, 2000).map(i => i * 2)
     }
-  },
+  }
 
 
+const
 // Effects (imperative)
-  makeDOMDriver = mountSelector => obj$ => {
-    const
-      createElement = obj => {
-        const
-          element = document.createElement(obj.tagName)
-
-        obj.children
-          .filter(c => 'object' === typeof c)
-          .map(createElement)
-          .forEach(c => element.appendChild(c))
-
-        obj.children
-          .filter(c => 'string' === typeof c)
-          .forEach(c => element.innerHTML += c)
-
-        return element
-      }
-
-    obj$.subscribe(obj => {
-      const
-        container = document.querySelector(mountSelector),
-        element = createElement(obj)
-
-      container.innerHTML = ''
-      container.appendChild(element)
-    })
-
-    return {
-      'selectEvent': (tagName, eventType) => Rx.Observable.fromEvent(document, eventType)
-        .filter(e => e.target.tagName === tagName.toUpperCase())
-    }
-  },
-
   consoleLogDriver = msg$ => msg$.subscribe(msg => console.log(msg)),
 
   driversToUse = {
