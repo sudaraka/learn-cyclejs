@@ -2,8 +2,9 @@ import Rx from 'rxjs'
 import { run } from '@cycle/core'
 import { h1, span, makeDOMDriver } from '@cycle/dom'
 
+const
   // Logic (functional)
-  function main(source) {
+  main = source => {
     const
       mouseover$ = source.DOM.select('span').events('mouseover')
 
@@ -15,10 +16,9 @@ import { h1, span, makeDOMDriver } from '@cycle/dom'
         ),
       'Log': Rx.Observable.timer(0, 2000).map(i => i * 2)
     }
-  }
+  },
 
 
-const
 // Effects (imperative)
   consoleLogDriver = msg$ => msg$.subscribe(msg => console.log(msg)),
 
