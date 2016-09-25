@@ -27,7 +27,7 @@ const
 
 
 // Effects (imperative)
-  domDriver = obj$ => {
+  makeDOMDriver = mountSelector => obj$ => {
     const
       createElement = obj => {
         const
@@ -47,7 +47,7 @@ const
 
     obj$.subscribe(obj => {
       const
-        container = document.querySelector('#app'),
+        container = document.querySelector(mountSelector),
         element = createElement(obj)
 
       container.innerHTML = ''
@@ -63,7 +63,7 @@ const
   consoleLogDriver = msg$ => msg$.subscribe(msg => console.log(msg)),
 
   driversToUse = {
-    'DOM': domDriver,
+    'DOM': makeDOMDriver('#app'),
     'Log': consoleLogDriver
   }
 
