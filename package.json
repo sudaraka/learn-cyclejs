@@ -23,7 +23,7 @@
   "devDependencies": {
     "@cycle/core": "^7.0.0",
     "@cycle/dom": "^12.2.5",
-    "@cycle/http": "^7.1.0",
+    "@cycle/http": "^8.2.2",
     "@sudaraka/eslint-config-default": "^0.7.3",
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",

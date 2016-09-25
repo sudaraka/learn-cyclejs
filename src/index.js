@@ -1,4 +1,3 @@
-import Rx from 'rx'
 import { run } from '@cycle/core'
 import { button, h1, h4, a, div, makeDOMDriver } from '@cycle/dom'
 import { makeHTTPDriver } from '@cycle/http'
