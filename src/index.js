@@ -10,22 +10,48 @@ const
     return {
       'DOM': click$
         .startWith(null)
-        .switchMap(() => Rx.Observable.timer(0, 1000).map(i => `Seconds elapsed ${i}`)),
+        .switchMap(() => Rx.Observable.timer(0, 1000)
+          .map(i => ({
+            'tagName': 'h1',
+            'children': [ {
+              'tagName': 'span',
+              'children': [ `Seconds elapsed ${i}` ]
+            } ]
+          }))
+        ),
       'Log': Rx.Observable.timer(0, 2000).map(i => i * 2)
     }
   },
 
 
 // Effects (imperative)
-  domDriver = text$ => {
+  domDriver = obj$ => {
     const
-      domSource = Rx.Observable.fromEvent(document, 'click')
+      domSource = Rx.Observable.fromEvent(document, 'click'),
 
-    text$.subscribe(text => {
+      createElement = obj => {
+        const
+          element = document.createElement(obj.tagName)
+
+        obj.children
+          .filter(c => 'object' === typeof c)
+          .map(createElement)
+          .forEach(c => element.appendChild(c))
+
+        obj.children
+          .filter(c => 'string' === typeof c)
+          .forEach(c => element.innerHTML += c)
+
+        return element
+      }
+
+    obj$.subscribe(obj => {
       const
-        container = document.querySelector('#app')
+        container = document.querySelector('#app'),
+        element = createElement(obj)
 
-      container.textContent = text
+      container.innerHTML = ''
+      container.appendChild(element)
     })
 
     return domSource
