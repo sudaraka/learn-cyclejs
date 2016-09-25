@@ -31,7 +31,7 @@ const
     ])
   ),
 
-  main = sources => {
+  labelSlider = sources => {
     const
       change$ = intent(sources.DOM),
       state$ = model(change$, sources.props),
@@ -40,15 +40,22 @@ const
     return { 'DOM': vtree$ }
   },
 
-  drivers = {
-    'DOM': makeDOMDriver('#app'),
-    'props': () => Rx.Observable.of({
-      'label': 'Height',
-      'unit': 'cm',
-      'min': 140,
-      'max': 220,
-      'init': 154
+  main = sources => {
+    const
+      props$ = Rx.Observable.of({
+        'label': 'Height',
+        'unit': 'cm',
+        'min': 140,
+        'max': 220,
+        'init': 154
+      })
+
+    return labelSlider({
+      ...sources,
+      'props': props$
     })
-  }
+  },
+
+  drivers = { 'DOM': makeDOMDriver('#app') }
 
 run(main, drivers)
