@@ -1,4 +1,5 @@
 import Rx from 'rxjs'
+import { run } from '@cycle/core'
 
 const
   // Logic (functional)
@@ -31,27 +32,6 @@ const
   },
 
   consoleLogDriver = msg$ => msg$.subscribe(msg => console.log(msg)),
-
-  run = (mainFn, drivers) => {
-    const
-      proxySources = {}
-
-    let
-      sink
-
-    Object.keys(drivers).forEach(key => {
-      proxySources[key] = new Rx.Subject()
-    })
-
-    sink = mainFn(proxySources)
-
-    Object.keys(drivers).forEach(key => {
-      const
-        source = drivers[key](sink[key])
-
-      source.subscribe(x => proxySources[key].next(x))
-    })
-  },
 
   driversToUse = {
     'DOM': domDriver,
