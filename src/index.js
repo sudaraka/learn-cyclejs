@@ -2,9 +2,9 @@ import Rx from 'rxjs'
 
 const
   // Logic (functional)
-  main = domSource => {
+  main = source => {
     const
-      click$ = domSource
+      click$ = source.DOM
 
     return {
       'DOM': click$
@@ -34,20 +34,28 @@ const
 
   run = (mainFn, drivers) => {
     const
-      proxyDOMSource = new Rx.Subject(),
-      sink = mainFn(proxyDOMSource),
-      domSource = drivers.DOM(sink.DOM)
+      proxySources = {}
 
-    domSource.subscribe(click => proxyDOMSource.next(click))
+    let
+      sink
 
-    // Object.keys(drivers).forEach(key => {
-    //   drivers[key](sink[key])
-    // })
+    Object.keys(drivers).forEach(key => {
+      proxySources[key] = new Rx.Subject()
+    })
+
+    sink = mainFn(proxySources)
+
+    Object.keys(drivers).forEach(key => {
+      const
+        source = drivers[key](sink[key])
+
+      source.subscribe(x => proxySources[key].next(x))
+    })
   },
 
-  drivers = {
+  driversToUse = {
     'DOM': domDriver,
     'Log': consoleLogDriver
   }
 
-run(main, drivers)
+run(main, driversToUse)
