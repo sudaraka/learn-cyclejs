@@ -7,6 +7,9 @@ const
     children
   }),
 
+  h1 = children => h('h1', children),
+  span = children => h('span', children),
+
   // Logic (functional)
   main = source => {
     const
@@ -16,7 +19,7 @@ const
       'DOM': click$
         .startWith(null)
         .switchMap(() => Rx.Observable.timer(0, 1000)
-          .map(i => h('h1', [ h('span', [ `Seconds elapsed ${i}` ]) ]))
+          .map(i => h1([ span([ `Seconds elapsed ${i}` ]) ]))
         ),
       'Log': Rx.Observable.timer(0, 2000).map(i => i * 2)
     }
