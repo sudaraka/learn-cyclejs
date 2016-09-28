@@ -1,6 +1,6 @@
 import Rx from 'rx'
 import { run } from '@cycle/core'
-import { label, input, div, makeDOMDriver } from '@cycle/dom'
+import { h2, label, input, div, makeDOMDriver } from '@cycle/dom'
 import isolate from '@cycle/isolate'
 
 const
@@ -38,7 +38,10 @@ const
       state$ = model(change$, sources.props),
       vtree$ = view(state$)
 
-    return { 'DOM': vtree$ }
+    return {
+      'DOM': vtree$,
+      'value': state$.map(state => state.value)
+    }
   },
 
   isolatedLabelSlider = sources => isolate(labelSlider)(sources),
@@ -48,7 +51,7 @@ const
       weightProps$ = Rx.Observable.of({
         'label': 'Weight',
         'unit': 'Kg',
-        'min': 40,
+        'min': 10,
         'max': 150,
         'init': 69
       }),
@@ -57,11 +60,12 @@ const
         'props': weightProps$
       }),
       weightVt$ = weightSinks.DOM,
+      weightValue$ = weightSinks.value,
 
       heightProps$ = Rx.Observable.of({
         'label': 'Height',
         'unit': 'cm',
-        'min': 140,
+        'min': 100,
         'max': 220,
         'init': 154
       }),
@@ -70,11 +74,29 @@ const
         'props': heightProps$
       }),
       heightVt$ = heightSinks.DOM,
+      heightValue$ = heightSinks.value,
+
+      bmi$ = Rx.Observable.combineLatest(
+        weightValue$,
+        heightValue$,
+        (weight, height) => {
+          const
+            heightM = height / 100,
+            bmi = Math.round(weight / (heightM * heightM))
+
+          return bmi
+        }
+      ),
 
       vtree$ = Rx.Observable.combineLatest(
+        bmi$,
         weightVt$,
         heightVt$,
-        (weightVt, heightVt) => div([ weightVt, heightVt ])
+        (bmi, weightVt, heightVt) => div([
+          weightVt,
+          heightVt,
+          h2(`BMI is ${bmi}`)
+        ])
       )
 
     return { 'DOM': vtree$ }
