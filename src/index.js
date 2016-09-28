@@ -42,18 +42,47 @@ const
 
   main = sources => {
     const
-      props$ = Rx.Observable.of({
+      weightProps$ = Rx.Observable.of({
+        'label': 'Weight',
+        'unit': 'Kg',
+        'min': 40,
+        'max': 150,
+        'init': 69
+      }),
+      weightSinks = labelSlider({
+        'DOM': sources.DOM.select('.weight'),
+        'props': weightProps$
+      }),
+      weightVt$ = weightSinks.DOM.map(vt => {
+        vt.sel += ' weight'
+
+        return vt
+      }),
+
+      heightProps$ = Rx.Observable.of({
         'label': 'Height',
         'unit': 'cm',
         'min': 140,
         'max': 220,
         'init': 154
-      })
+      }),
+      heightSinks = labelSlider({
+        'DOM': sources.DOM.select('.height'),
+        'props': heightProps$
+      }),
+      heightVt$ = heightSinks.DOM.map(vt => {
+        vt.sel += ' height'
 
-    return labelSlider({
-      ...sources,
-      'props': props$
-    })
+        return vt
+      }),
+
+      vtree$ = Rx.Observable.combineLatest(
+        weightVt$,
+        heightVt$,
+        (weightVt, heightVt) => div([ weightVt, heightVt ])
+      )
+
+    return { 'DOM': vtree$ }
   },
 
   drivers = { 'DOM': makeDOMDriver('#app') }
