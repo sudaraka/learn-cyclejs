@@ -1,6 +1,7 @@
 import Rx from 'rx'
 import { run } from '@cycle/core'
 import { label, input, div, makeDOMDriver } from '@cycle/dom'
+import isolate from '@cycle/isolate'
 
 const
   intent = domSource => domSource.select('.slider').events('input')
@@ -40,6 +41,8 @@ const
     return { 'DOM': vtree$ }
   },
 
+  isolatedLabelSlider = sources => isolate(labelSlider)(sources),
+
   main = sources => {
     const
       weightProps$ = Rx.Observable.of({
@@ -49,15 +52,11 @@ const
         'max': 150,
         'init': 69
       }),
-      weightSinks = labelSlider({
-        'DOM': sources.DOM.select('.weight'),
+      weightSinks = isolatedLabelSlider({
+        ...sources,
         'props': weightProps$
       }),
-      weightVt$ = weightSinks.DOM.map(vt => {
-        vt.sel += ' weight'
-
-        return vt
-      }),
+      weightVt$ = weightSinks.DOM,
 
       heightProps$ = Rx.Observable.of({
         'label': 'Height',
@@ -66,15 +65,11 @@ const
         'max': 220,
         'init': 154
       }),
-      heightSinks = labelSlider({
-        'DOM': sources.DOM.select('.height'),
+      heightSinks = isolatedLabelSlider({
+        ...sources,
         'props': heightProps$
       }),
-      heightVt$ = heightSinks.DOM.map(vt => {
-        vt.sel += ' height'
-
-        return vt
-      }),
+      heightVt$ = heightSinks.DOM,
 
       vtree$ = Rx.Observable.combineLatest(
         weightVt$,
